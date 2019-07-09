@@ -6,6 +6,8 @@ Created on Wednesday July, 3 2019
 
 import csv
 import json
+import os
+import DataToKeplerMain as Kepler
 
 
 SIDBY_conds_SERFR = {'track': (340, 346), 'alt': (4000, 5501), 'ground_speed': (200, 275), 'vrate': (-2000, -100),
@@ -77,7 +79,7 @@ def apply_route_conditions(cond_set, row):
 # the 'apply_route_conditions' returned 'True' to the file under the 'route' column/key.
 # ---------------------------------------------------------------------------------------
 def addToJSON(icaoList, routeName):
-    jsonFile = "FA_Sightings." + target_date + ".airport_ids.json.txt"
+    jsonFile = "./Data Sets by Date/" + target_date + "/FA_Sightings." + target_date + ".airport_ids.json.txt"
     print("\nAdding to JSON feed...")
     with open(jsonFile, 'r+') as f:
 
@@ -100,6 +102,7 @@ def addToJSON(icaoList, routeName):
         f.seek(0)  # should reset file position to the beginning.
         json.dump(master_struct, f)
         f.truncate()
+    print("\nJSON feed update complete")
 
 
 # ---------------------------------------------------------------------------------------
@@ -137,6 +140,7 @@ def listMaker():
 # in order to complete the classification task that it is given.
 # ----------------------------------------------------------------------------------------
 def sightingReader(date):
+    print("\nStarting classification...")
     global target_date
     target_date = date
     for eachRoute in routes:
@@ -147,7 +151,7 @@ def sightingReader(date):
 
             cond_set = eachRoute[waypoint]
 
-            file = "FA_rcas." + target_date + "." + waypoint + ".rca.txt"
+            file = "./Data Sets by Date/" + target_date + "/FA_rcas/FA_rcas." + target_date + "." + waypoint + ".rca.txt"
 
             with open(file) as f_in:
                 reader = csv.reader(f_in, delimiter='\t', quotechar='"')
@@ -168,7 +172,11 @@ def sightingReader(date):
 
         ALL_ROUTE_IDS[routeName] = flight_ids
         print('\nALL ROUTE IDS:\n', ALL_ROUTE_IDS)
+        print("\nClassification complete")
         listMaker()
+    print("\nModule complete")
+    print("\nMaking Kepler file")
+    Kepler.runkepler()
 
 
 if __name__ == "__main__":

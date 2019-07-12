@@ -8,34 +8,64 @@ import csv
 import json
 import os
 import DataToKeplerMain as Kepler
+import time
 
 
-SIDBY_conds_SERFR = {'track': (340, 346), 'alt': (4000, 5501), 'ground_speed': (200, 275), 'vrate': (-2000, -100),
-                     'ground_distance': (0, 0.125), 'name': 'SERFR'}
+SIDBY_conds_SERFR = {'track': (320, 346), 'alt': (4000, 5501), 'ground_speed': (200, 275), 'vrate': (-2000, -100),
+                     'ground_distance': (0, 0), 'name': 'SERFR'}
 
-EDDY2_conds_SERFR = {'track': (340, 346), 'alt': (5700, 8401), 'ground_speed': (105, 401), 'vrate': (-2053, -457),
-                     'ground_distance': (0, 0.125), 'name': 'SERFR'}
+EDDY2_conds_SERFR = {'track': (320, 346), 'alt': (5700, 8401), 'ground_speed': (105, 401), 'vrate': (-2053, -457),
+                     'ground_distance': (0, 2), 'name': 'SERFR'}
 
-EDDY3_conds_SERFR = {'track': (340, 346), 'alt': (4500, 7400), 'ground_speed':(70, 265), 'vrate':(-2176, 594),
-                     'ground_distance': (0, 0.125), 'name': 'SERFR'}
+EDDY3_conds_SERFR = {'track': (320, 346), 'alt': (4500, 7400), 'ground_speed':(70, 265), 'vrate':(-2176, 594),
+                     'ground_distance': (0, 2), 'name': 'SERFR'}
 
-NARWL_conds_SERFR = {'track':(340, 346), 'alt':(7000, 10001), 'ground_speed':(196, 387),'vrate': (-2112, -181),
-                     'ground_distance': (0, 0.125), 'name': 'SERFR'}
+NARWL_conds_SERFR = {'track':(320, 346), 'alt':(7000, 10001), 'ground_speed':(196, 387),'vrate': (-2112, -181),
+                     'ground_distance': (0, 2), 'name': 'SERFR'}
+
+obs2_conds_SERFR = {'track':(302, 353), 'alt':(8300, 12100), 'ground_speed':(270, 372),'vrate': (-2032, -400),
+                    'ground_distance': (0, 2), 'name': 'SERFR'}
+
+obs1_conds_SERFR = {'track':(338, 351), 'alt':(10000, 14215), 'ground_speed':(324, 390),'vrate': (-2700, -1100),
+                    'ground_distance': (0, 2), 'name': 'SERFR'}
+
+BRINY_conds_PIRAT2 = {'track':(45, 75), 'alt':(0, 12000), 'ground_speed':(0, 400),'vrate': (-1700, -300),
+                    'ground_distance': (0, 1), 'name': 'PIRAT2'}
+
+ARGGG_conds_PIRAT2 = {'track':(45, 75), 'alt':(5000, 9000), 'ground_speed':(0, 400),'vrate': (-2500, 0),
+                    'ground_distance': (0, 0.3), 'name': 'PIRAT2'}
+
+PIRAT_conds_PIRAT2 = {'track':(45, 75), 'alt':(10000, 13501), 'ground_speed':(0, 400),'vrate': (-1501, 0),
+                    'ground_distance': (0, 1), 'name': 'PIRAT2'}
+
+
 
 SERFR = {
     "SIDBY_SFO_Approach_SE": SIDBY_conds_SERFR,
     "EDDYY(2)": EDDY2_conds_SERFR,
-    "NARWL": NARWL_conds_SERFR,
     "EDDYY(3)": EDDY3_conds_SERFR,
+    "NARWL": NARWL_conds_SERFR,
+    "OBS_2": obs2_conds_SERFR,
+    "OBS_1": obs1_conds_SERFR
+
 
 }
 
+PIRAT2 = {
+    "ARGGG": ARGGG_conds_PIRAT2,
+    "BRINY": BRINY_conds_PIRAT2,
+    "PIRAT": PIRAT_conds_PIRAT2
+}
+
 routes = [
+
+    PIRAT2,
     SERFR
 ]
 
 ALL_ROUTE_IDS = {
-    "SERFR": []
+    "SERFR": [],
+    "PIRAT2": [],
 }
 
 target_date = ''
@@ -62,10 +92,10 @@ def apply_route_conditions(cond_set, row):
     vertical_rate = row[12]
     ground_speed = row[11]
 
-    if float(int(track)) in range(track_min, track_max) \
-            and int(altitude) in range(alt_min, alt_max) \
-            and int(vertical_rate) in range(vrate_min, vrate_max) \
-            and int(ground_speed) in range(ground_speed_min, ground_speed_max) \
+    if float(int(track)) in range(track_min, track_max+1) \
+            and int(altitude) in range(alt_min, alt_max+1) \
+            and int(vertical_rate) in range(vrate_min, vrate_max+1) \
+            and int(ground_speed) in range(ground_speed_min, ground_speed_max+1) \
             and ground_distance_min <= float(ground_distance) <= ground_distance_max:
         return cond_set['name']
     else:
@@ -79,18 +109,15 @@ def apply_route_conditions(cond_set, row):
 # the 'apply_route_conditions' returned 'True' to the file under the 'route' column/key.
 # ---------------------------------------------------------------------------------------
 def addToJSON(icaoList, routeName):
+    startTime = time.time()
     jsonFile = "./Data Sets by Date/" + target_date + "/FA_Sightings." + target_date + ".airport_ids.json.txt"
     print("\nAdding to JSON feed...")
     with open(jsonFile, 'r+') as f:
-
         master_struct = json.load(f)
-
         master_buffer = master_struct['aircraft']
-
         icao_keys = list(master_buffer)
         for ic in icao_keys:
             r_set = master_buffer[ic]  # Meta/segment/sighting data for given icao
-
             for j_seg in range(1, len(r_set)):
                 seg_data = r_set[j_seg]  # Data block for this segment
                 seg_meta = seg_data[0]  # Fetch the segment hdr data
@@ -98,11 +125,19 @@ def addToJSON(icaoList, routeName):
                     seg_meta['route'] = routeName
                 elif 'route' not in seg_meta.keys():
                     seg_meta['route'] = 'other'
-
         f.seek(0)  # should reset file position to the beginning.
         json.dump(master_struct, f)
         f.truncate()
-    print("\nJSON feed update complete")
+    endTime = time.time()
+    finalTime = endTime - startTime
+    print("\nJSON feed update complete in %1.2f seconds." % finalTime)
+
+
+def routecounter(routelist, routename):
+    counter = 0
+    for each in routelist:
+        counter += len(routelist[each])
+    print(routename, ": ",counter)
 
 
 # ---------------------------------------------------------------------------------------
@@ -111,8 +146,9 @@ def addToJSON(icaoList, routeName):
 # number of the flight flying on the route being classified.
 # ---------------------------------------------------------------------------------------
 def listMaker():
-    routeicaos = {}
+
     for eachRoute in ALL_ROUTE_IDS:
+        routeicaos = {}
         for each in ALL_ROUTE_IDS[eachRoute]:
             icao_name = each[5:13]
             icao_segment = each[14:].strip("()")
@@ -127,11 +163,10 @@ def listMaker():
                 id_list = [icao_segment]
                 id_list = set(id_list)
                 routeicaos[str(icao_name)] = id_list
+        routecounter(routeicaos, str(eachRoute))
         addToJSON(routeicaos, str(eachRoute))
 
-    print("\n\nROUTE TALLY:")
-    for eachRoute in ALL_ROUTE_IDS:
-        print(str(eachRoute) + ": " + str(len(ALL_ROUTE_IDS[eachRoute])))
+
 
 
 # ----------------------------------------------------------------------------------------
@@ -171,9 +206,10 @@ def sightingReader(date):
             count += 1
 
         ALL_ROUTE_IDS[routeName] = flight_ids
-        print('\nALL ROUTE IDS:\n', ALL_ROUTE_IDS)
-        print("\nClassification complete")
-        listMaker()
+    print('\nALL ROUTE IDS:\n', ALL_ROUTE_IDS)
+    print("\nClassification complete")
+    listMaker()
+
     print("\nModule complete")
     print("\nMaking Kepler file")
     Kepler.runkepler()

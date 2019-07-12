@@ -6,7 +6,7 @@ Created on Tue Sep  5 15:06:34 2017
 """
 import sys
 import os
-os.chdir('/Users/aditeyashukla/Documents/MONA/CLASSIFY_FINAL/') # Get to proper starting dir
+os.chdir('/Users/avisingh/Desktop/MONA/Classification/') # Get to proper starting dir
 import tkinter as tk
 from tkinter import filedialog
 import json
@@ -83,7 +83,12 @@ obs_list = [('Tevis Pl; PA', 37.450204, -122.143786, 26),
             ('SIDBY SFO Approach SE', 37.450711, -122.144722, 25),
             ('EDDYY(2)', 37.326444,   -122.099722, 958.8),
             ('EDDYY(3)', 37.374903,   -122.119028, 206.5),
-            ('NARWL', 37.274781,   -122.079306, 778.0)]
+            ('NARWL', 37.274781,   -122.079306, 778.0),
+            ('OBS_1', 36.967737, -121.959109, 49.2),
+            ('OBS_2', 37.115215, -122.016728, 738.2),
+            ('BRINY', 37.304761, -122.661656, 0.0),
+            ('ARGGG', 37.392422, -122.281631, 2183.3),
+            ('PIRAT', 37.257650, -122.863353, 0.0)]
 
 # Don Jackson & TCR home
 #obs_list = [('Tevis Pl; PA', 37.450204, -122.143786, 26),

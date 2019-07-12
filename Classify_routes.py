@@ -39,7 +39,6 @@ PIRAT_conds_PIRAT2 = {'track':(45, 75), 'alt':(10000, 13501), 'ground_speed':(0,
                     'ground_distance': (0, 1), 'name': 'PIRAT2'}
 
 
-
 SERFR = {
     "SIDBY_SFO_Approach_SE": SIDBY_conds_SERFR,
     "EDDYY(2)": EDDY2_conds_SERFR,
@@ -47,8 +46,6 @@ SERFR = {
     "NARWL": NARWL_conds_SERFR,
     "OBS_2": obs2_conds_SERFR,
     "OBS_1": obs1_conds_SERFR
-
-
 }
 
 PIRAT2 = {

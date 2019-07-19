@@ -11,32 +11,64 @@ import DataToKeplerMain as Kepler
 import time
 
 
-SIDBY_conds_SERFR = {'track': (320, 346), 'alt': (4000, 5501), 'ground_speed': (200, 275), 'vrate': (-2000, -100),
-                     'ground_distance': (0, 0), 'name': 'SERFR'}
+# SERFR WAYPOINTS:
+
+SIDBY_conds_SERFR = {'track': (300, 335), 'alt': (3000, 6000), 'ground_speed': (200, 275), 'vrate': (-2000, -100),
+                     'ground_distance': (0, 0.125), 'name': 'SERFR'}
+
+EDDY3_conds_SERFR = {'track': (320, 346), 'alt': (4500, 8400), 'ground_speed':(70, 265), 'vrate':(-2176, 594),
+                     'ground_distance': (0, 0.5), 'name': 'SERFR'}
 
 EDDY2_conds_SERFR = {'track': (320, 346), 'alt': (5700, 8401), 'ground_speed': (105, 401), 'vrate': (-2053, -457),
-                     'ground_distance': (0, 2), 'name': 'SERFR'}
-
-EDDY3_conds_SERFR = {'track': (320, 346), 'alt': (4500, 7400), 'ground_speed':(70, 265), 'vrate':(-2176, 594),
-                     'ground_distance': (0, 2), 'name': 'SERFR'}
+                     'ground_distance': (0, 0.5), 'name': 'SERFR'}
 
 NARWL_conds_SERFR = {'track':(320, 346), 'alt':(7000, 10001), 'ground_speed':(196, 387),'vrate': (-2112, -181),
                      'ground_distance': (0, 2), 'name': 'SERFR'}
 
-obs2_conds_SERFR = {'track':(302, 353), 'alt':(8300, 12100), 'ground_speed':(270, 372),'vrate': (-2032, -400),
-                    'ground_distance': (0, 2), 'name': 'SERFR'}
+obs2_conds_SERFR = {'track':(280, 353), 'alt':(8300, 12100), 'ground_speed':(200, 372),'vrate': (-2032, -400),
+                    'ground_distance': (0, 5), 'name': 'SERFR'}
 
-obs1_conds_SERFR = {'track':(338, 351), 'alt':(10000, 14215), 'ground_speed':(324, 390),'vrate': (-2700, -1100),
-                    'ground_distance': (0, 2), 'name': 'SERFR'}
+obs1_conds_SERFR = {'track':(338, 351), 'alt':(10000, 15215), 'ground_speed':(324, 390),'vrate': (-2700, 00),
+                    'ground_distance': (0, 5), 'name': 'SERFR'}
+
+# PIRAT2 WAYPOINTS
 
 BRINY_conds_PIRAT2 = {'track':(45, 75), 'alt':(0, 12000), 'ground_speed':(0, 400),'vrate': (-1700, -300),
-                    'ground_distance': (0, 1), 'name': 'PIRAT2'}
+                    'ground_distance': (0, 2), 'name': 'PIRAT2'}
 
 ARGGG_conds_PIRAT2 = {'track':(45, 75), 'alt':(5000, 9000), 'ground_speed':(0, 400),'vrate': (-2500, 0),
                     'ground_distance': (0, 0.3), 'name': 'PIRAT2'}
 
 PIRAT_conds_PIRAT2 = {'track':(45, 75), 'alt':(10000, 13501), 'ground_speed':(0, 400),'vrate': (-1501, 0),
                     'ground_distance': (0, 1), 'name': 'PIRAT2'}
+
+# DYAMD5 WAYPOINTS
+
+FLOWZ_conds_DYAMD5 = {'track':(244, 262), 'alt': (10001, 15000), 'ground_speed':(0, 400),'vrate': (-2240, -1100),
+                     'ground_distance': (0, 1), 'name': 'DYAMD5'}
+
+CEDES_conds_DYAMD5 = {'track':(240, 262), 'alt': (9000, 12001), 'ground_speed':(0, 400),'vrate': (-3000, -390),
+                     'ground_distance': (0,1), 'name': 'DYAMD5'}
+
+FRELY_conds_DYAMD5 = {'track':(235, 252), 'alt': (7000, 15000), 'ground_speed':(0, 270),'vrate': (-2240, 0),
+                     'ground_distance': (0, 0.4), 'name': 'DYAMD5'}
+
+ARCHI_conds_DYAMD5 = {'track':(235, 269), 'alt': (0, 7800), 'ground_speed':(0, 400),'vrate': (-2600, 0),
+                     'ground_distance': (0, 0.15), 'name': 'DYAMD5'}
+
+#BDEGA3 WAYPOINTS
+
+LOZIT_conds_BDEGA3 = {'track':(120, 170), 'alt': (4300, 16000), 'ground_speed':(250, 400),'vrate': (-2900, 0),
+                    'ground_distance': (0, 1), 'name': 'BDEGA3'}
+
+BDEGA_conds_BDEGA3 = {'track':(130, 170), 'alt': (6100, 14000), 'ground_speed':(0, 400),'vrate': (-2900, -1000),
+                    'ground_distance': (0, 1), 'name': 'BDEGA3'}
+
+CORKK_conds_BDEGA3 = {'track':(120, 170), 'alt': (3600, 11000), 'ground_speed':(0, 400),'vrate': (-3000, 0),
+                    'ground_distance': (0, 0.35), 'name': 'BDEGA3'}
+
+BRIXX_conds_BDEGA3 = {'track':(120, 160), 'alt': (0, 11000), 'ground_speed':(0, 400),'vrate': (-4000, -100),
+                    'ground_distance': (0, 0.15), 'name': 'BDEGA3'}
 
 
 SERFR = {
@@ -49,20 +81,38 @@ SERFR = {
 }
 
 PIRAT2 = {
-    "ARGGG": ARGGG_conds_PIRAT2,
+
     "BRINY": BRINY_conds_PIRAT2,
-    "PIRAT": PIRAT_conds_PIRAT2
+    "ARGGG": ARGGG_conds_PIRAT2
+}
+
+DYAMD5 = {
+    "FLOWZ": FLOWZ_conds_DYAMD5,
+    "CEDES": CEDES_conds_DYAMD5,
+    "FRELY": FRELY_conds_DYAMD5,
+    "ARCHI": ARCHI_conds_DYAMD5
+}
+
+BDEGA3 = {
+    "LOZIT": LOZIT_conds_BDEGA3,
+    "BDEGA": BDEGA_conds_BDEGA3,
+    "CORKK": CORKK_conds_BDEGA3,
+    "BRIXX": BRIXX_conds_BDEGA3
 }
 
 routes = [
 
+    SERFR,
     PIRAT2,
-    SERFR
+    DYAMD5,
+    BDEGA3
 ]
 
 ALL_ROUTE_IDS = {
     "SERFR": [],
     "PIRAT2": [],
+    "DYAMD5": [],
+    "BDEGA3": []
 }
 
 target_date = ''
@@ -108,7 +158,7 @@ def apply_route_conditions(cond_set, row):
 def addToJSON(icaoList, routeName):
     startTime = time.time()
     jsonFile = "./Data Sets by Date/" + target_date + "/FA_Sightings." + target_date + ".airport_ids.json.txt"
-    print("\nAdding to JSON feed...")
+    print("Adding to JSON feed... (Adding Route " + routeName + ")")
     with open(jsonFile, 'r+') as f:
         master_struct = json.load(f)
         master_buffer = master_struct['aircraft']
@@ -134,7 +184,7 @@ def routecounter(routelist, routename):
     counter = 0
     for each in routelist:
         counter += len(routelist[each])
-    print(routename, ": ",counter)
+    print("\n" + routename, ": ",counter)
 
 
 # ---------------------------------------------------------------------------------------

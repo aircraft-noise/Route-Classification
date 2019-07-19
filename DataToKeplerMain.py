@@ -93,7 +93,7 @@ def runkepler():
 
     # Here we have a good date to be processed
     # Announce program running
-    print ('Program to make kepler input point display file for {0} ' \
+    print ('Program to make Kepler input point display file for {0} ' \
                .format(str(target_tuple)))
 
     # Now compute the bounding dates for the day in UNIX epoch format
@@ -201,6 +201,7 @@ def runkepler():
 
     with open (file_in) as json_file:
             flightData = json.load(json_file)
+            #icao = flightData['aircraft'].keys()
             flights = flightData["aircraft"] #Assigns aircraft key to flights
     # Pick up starting and ending times of data recording.
             startUnix = flightData["tmin"]
@@ -411,8 +412,39 @@ def runkepler():
                     {'code': 'JESEN',
                     'name': 'JESEN',
                     'latitude': 37.294831,
-                    'longitude': -121.975569}
-                    ],
+                    'longitude': -121.975569},
+                    {'code': 'LOZIT',
+                     'name': 'LOZIT',
+                     'latitude': 37.899325,
+                     'longitude': -122.673194},
+                    {'code': 'BDEGA',
+                     'name': 'BDEGA',
+                     'latitude': 37.823025,
+                     'longitude': -122.5922},
+                    {'code': 'CORKK',
+                     'name': 'CORKK',
+                     'latitude': 37.733589,
+                     'longitude': -122.49755},
+                    {'code': 'CEDES',
+                     'name': 'CEDES',
+                     'latitude': 37.55082,
+                     'longitude': -121.6246},
+                    {'code': 'FLOWZ',
+                     'name': 'FLOWZ',
+                     'latitude': 37.592519,
+                     'longitude': -121.26475},
+                    {'code': 'FRELY',
+                     'name': 'FRELY',
+                     'latitude': 37.510053,
+                     'longitude': -121.795325},
+                    {'code': 'OBS_1',           #This is a fictious observation point that was made near Capitola
+                     'name': 'OBS_1',
+                     'latitude': 36.967737,
+                     'longitude': -121.959109},
+                    {'code': 'OBS_2',           #This is another fictious observation point that was made near Boulder Creek and Scotts Valley
+                     'name': 'OBS_2',
+                     'latitude': 37.115215,
+                     'longitude': -122.016728}],
                 'other': [{
                     'code': 'MJF',
                     'name': 'MJF',
@@ -493,11 +525,11 @@ def runkepler():
                          #to this order.
                          "fields": [
                         {
-                              "name": "icao",
+                              "name": "flight",
                               "type": "string"
                         },
                         {
-                              "name": "flight",
+                              "name": "icao",
                               "type": "string"
                         },
                         {

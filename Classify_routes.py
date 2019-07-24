@@ -8,7 +8,6 @@ import csv
 import json
 import os
 import DataToKeplerMain as Kepler
-import time
 
 
 # SERFR WAYPOINTS:
@@ -73,24 +72,26 @@ BRIXX_conds_BDEGA3 = {'track':(120, 160), 'alt': (0, 11000), 'ground_speed':(0, 
 
 SERFR = {
     "SIDBY_SFO_Approach_SE": SIDBY_conds_SERFR,
-    "EDDYY(2)": EDDY2_conds_SERFR,
     "EDDYY(3)": EDDY3_conds_SERFR,
+    "EDDYY(2)": EDDY2_conds_SERFR,
     "NARWL": NARWL_conds_SERFR,
     "OBS_2": obs2_conds_SERFR,
     "OBS_1": obs1_conds_SERFR
+
+
 }
 
 PIRAT2 = {
-
+    "ARGGG": ARGGG_conds_PIRAT2,
     "BRINY": BRINY_conds_PIRAT2,
-    "ARGGG": ARGGG_conds_PIRAT2
+    "PIRAT": PIRAT_conds_PIRAT2
 }
 
 DYAMD5 = {
-    "FLOWZ": FLOWZ_conds_DYAMD5,
-    "CEDES": CEDES_conds_DYAMD5,
-    "FRELY": FRELY_conds_DYAMD5,
-    "ARCHI": ARCHI_conds_DYAMD5
+    "FLOWZ": FLOWZ_conds_DYAMD5, #26
+    "CEDES": CEDES_conds_DYAMD5, #0
+    "FRELY": FRELY_conds_DYAMD5, #7
+    "ARCHI": ARCHI_conds_DYAMD5 #0
 }
 
 BDEGA3 = {
@@ -101,18 +102,18 @@ BDEGA3 = {
 }
 
 routes = [
-
-    SERFR,
     PIRAT2,
+    SERFR,
     DYAMD5,
     BDEGA3
 ]
 
 ALL_ROUTE_IDS = {
-    "SERFR": [],
     "PIRAT2": [],
+    "SERFR": [],
     "DYAMD5": [],
     "BDEGA3": []
+
 }
 
 target_date = ''
@@ -142,7 +143,7 @@ def apply_route_conditions(cond_set, row):
     if float(int(track)) in range(track_min, track_max+1) \
             and int(altitude) in range(alt_min, alt_max+1) \
             and int(vertical_rate) in range(vrate_min, vrate_max+1) \
-            and int(ground_speed) in range(ground_speed_min, ground_speed_max+1) \
+            and int(ground_speed) in range(ground_speed_min, ground_speed_max+1)\
             and ground_distance_min <= float(ground_distance) <= ground_distance_max:
         return cond_set['name']
     else:
@@ -156,15 +157,18 @@ def apply_route_conditions(cond_set, row):
 # the 'apply_route_conditions' returned 'True' to the file under the 'route' column/key.
 # ---------------------------------------------------------------------------------------
 def addToJSON(icaoList, routeName):
-    startTime = time.time()
     jsonFile = "./Data Sets by Date/" + target_date + "/FA_Sightings." + target_date + ".airport_ids.json.txt"
-    print("Adding to JSON feed... (Adding Route " + routeName + ")")
+    print("\nAdding to JSON feed...")
     with open(jsonFile, 'r+') as f:
+
         master_struct = json.load(f)
+
         master_buffer = master_struct['aircraft']
+
         icao_keys = list(master_buffer)
         for ic in icao_keys:
             r_set = master_buffer[ic]  # Meta/segment/sighting data for given icao
+
             for j_seg in range(1, len(r_set)):
                 seg_data = r_set[j_seg]  # Data block for this segment
                 seg_meta = seg_data[0]  # Fetch the segment hdr data
@@ -172,19 +176,18 @@ def addToJSON(icaoList, routeName):
                     seg_meta['route'] = routeName
                 elif 'route' not in seg_meta.keys():
                     seg_meta['route'] = 'other'
+
         f.seek(0)  # should reset file position to the beginning.
         json.dump(master_struct, f)
         f.truncate()
-    endTime = time.time()
-    finalTime = endTime - startTime
-    print("\nJSON feed update complete in %1.2f seconds." % finalTime)
+    print("\nJSON feed update complete")
 
 
 def routecounter(routelist, routename):
     counter = 0
     for each in routelist:
         counter += len(routelist[each])
-    print("\n" + routename, ": ",counter)
+    print(routename, ": ",counter)
 
 
 # ---------------------------------------------------------------------------------------
@@ -211,9 +214,8 @@ def listMaker():
                 id_list = set(id_list)
                 routeicaos[str(icao_name)] = id_list
         routecounter(routeicaos, str(eachRoute))
+        print(routeicaos)
         addToJSON(routeicaos, str(eachRoute))
-
-
 
 
 # ----------------------------------------------------------------------------------------
@@ -253,10 +255,9 @@ def sightingReader(date):
             count += 1
 
         ALL_ROUTE_IDS[routeName] = flight_ids
-    print('\nALL ROUTE IDS:\n', ALL_ROUTE_IDS)
+
     print("\nClassification complete")
     listMaker()
-
     print("\nModule complete")
     print("\nMaking Kepler file")
     Kepler.runkepler()

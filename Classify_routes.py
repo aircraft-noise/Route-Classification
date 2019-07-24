@@ -8,6 +8,7 @@ import csv
 import json
 import os
 import DataToKeplerMain as Kepler
+import time
 
 
 # SERFR WAYPOINTS:
@@ -157,8 +158,9 @@ def apply_route_conditions(cond_set, row):
 # the 'apply_route_conditions' returned 'True' to the file under the 'route' column/key.
 # ---------------------------------------------------------------------------------------
 def addToJSON(icaoList, routeName):
+    startTimer = time.time()
     jsonFile = "./Data Sets by Date/" + target_date + "/FA_Sightings." + target_date + ".airport_ids.json.txt"
-    print("\nAdding to JSON feed...")
+    print("\nAdding to JSON feed " + "(" + routeName + ")...")
     with open(jsonFile, 'r+') as f:
 
         master_struct = json.load(f)
@@ -180,7 +182,9 @@ def addToJSON(icaoList, routeName):
         f.seek(0)  # should reset file position to the beginning.
         json.dump(master_struct, f)
         f.truncate()
-    print("\nJSON feed update complete")
+    endTimer = time.time()
+    finalTime = endTimer - startTimer
+    print("\nJSON feed update complete in %1.2f seconds" % finalTime)
 
 
 def routecounter(routelist, routename):

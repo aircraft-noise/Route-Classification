@@ -6,7 +6,7 @@ Created on Tue Sep  5 15:06:34 2017
 """
 import sys
 import os
-os.chdir('/Users/aditeyashukla/Documents/MONA/Route-Classification/') # Get to proper starting dir
+os.chdir('/Users/avisingh/Desktop/MONA/Classification/') # Get to proper starting dir
 import tkinter as tk
 from tkinter import filedialog
 import json

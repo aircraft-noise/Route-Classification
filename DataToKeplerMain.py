@@ -529,11 +529,11 @@ def runkepler():
                 # to this order.
                 "fields": [
                     {
-                        "name": "flight",
+                        "name": "icao",
                         "type": "string"
                     },
                     {
-                        "name": "icao",
+                        "name": "flight",
                         "type": "string"
                     },
                     {

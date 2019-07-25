@@ -135,7 +135,6 @@ def apply_route_conditions(cond_set, row):
     ground_speed_min, ground_speed_max = cond_set['ground_speed']
     ground_distance_min, ground_distance_max = cond_set['ground_distance']
     ground_distance = row[3]
-
     track = row[13]
     altitude = row[10]
     vertical_rate = row[12]
@@ -149,6 +148,27 @@ def apply_route_conditions(cond_set, row):
         return cond_set['name']
     else:
         return 'other'
+
+def origin_finder(icaoList):
+    jsonFile = "./Data Sets by Date/" + target_date + "/FA_Sightings." + target_date + ".airport_ids.json.txt"
+    departureFile = './Data Sets by Date/' + target_date + '/fa_airport_arr_dep.' + target_date + '.json'
+    with open(jsonFile, 'r+') as f:
+        input = json.load(f)
+        for icao in icaoList:
+            #print(input['aircraft'][icao])
+            id = input['aircraft'][icao][1][0]['flight']
+
+    with open(departureFile, 'r+') as file:
+        originFile = json.load(file)
+        while len(icaoList):
+            fa_id = originFile['KSFO']['arrivals']['flights']
+            for key in fa_id:
+                if str(key).startswith(id):
+                    #print(origin)
+                    airport_code = fa_id[key]['origin']['code']
+                    return airport_code
+
+
 
 
 # ---------------------------------------------------------------------------------------
@@ -176,8 +196,10 @@ def addToJSON(icaoList, routeName):
                 seg_meta = seg_data[0]  # Fetch the segment hdr data
                 if str(ic) in icaoList.keys() and str(seg_meta['segment']) in icaoList[str(ic)]:
                     seg_meta['route'] = routeName
+                    seg_meta['origin'] = origin_finder(icaoList)
                 elif 'route' not in seg_meta.keys():
                     seg_meta['route'] = 'other'
+                    seg_meta['origin'] = 'other'
 
         f.seek(0)  # should reset file position to the beginning.
         json.dump(master_struct, f)

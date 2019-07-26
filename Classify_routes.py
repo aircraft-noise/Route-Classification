@@ -149,24 +149,26 @@ def apply_route_conditions(cond_set, row):
     else:
         return 'other'
 
-def origin_finder(icaoList):
-    jsonFile = "./Data Sets by Date/" + target_date + "/FA_Sightings." + target_date + ".airport_ids.json.txt"
-    departureFile = './Data Sets by Date/' + target_date + '/fa_airport_arr_dep.' + target_date + '.json'
-    with open(jsonFile, 'r+') as f:
-        input = json.load(f)
-        for icao in icaoList:
-            #print(input['aircraft'][icao])
-            id = input['aircraft'][icao][1][0]['flight']
+# ------------------------------------------------------------------------------------------
+# This function finds the origin of the flights using their ICAO addresses. It opens the
+# the sightings file, and then finds the flight number using the ICAO address. The arrivals
+# and departures file is then opened (FlightAware). The flight number found by the sightings
+# file is mapped onto the arrivals and departures file in order to find the correct key that
+# holds the value for the origin airport of a flight. The function then returns the airport
+# code of the origin, and adds it to the JSON feed.
+# ------------------------------------------------------------------------------------------
 
-    with open(departureFile, 'r+') as file:
-        originFile = json.load(file)
-        while len(icaoList):
-            fa_id = originFile['KSFO']['arrivals']['flights']
-            for key in fa_id:
-                if str(key).startswith(id):
-                    #print(origin)
-                    airport_code = fa_id[key]['origin']['code']
-                    return airport_code
+def origin_finder(icao, master_struct,dep_input):
+    #print(input['aircraft'][icao])
+    flight_id = master_struct['aircraft'][icao][1][0]['flight']
+    fa_id = dep_input['KSFO']['arrivals']['flights']
+    for key in fa_id:
+        if str(key).startswith(flight_id):
+            real_key = key
+            #print(origin)
+            print('Origin ' + '(ICAO: ' + (icao) + '): ' + fa_id[real_key]['origin']['code'])
+            airport_code = fa_id[key]['origin']['code']
+            return airport_code
 
 
 
@@ -180,10 +182,12 @@ def origin_finder(icaoList):
 def addToJSON(icaoList, routeName):
     startTimer = time.time()
     jsonFile = "./Data Sets by Date/" + target_date + "/FA_Sightings." + target_date + ".airport_ids.json.txt"
+    departureFile = './Data Sets by Date/' + target_date + '/Airport to-from/fa_airport_arr_dep.' + target_date + '.json'
     print("\nAdding to JSON feed " + "(" + routeName + ")...")
-    with open(jsonFile, 'r+') as f:
+    with open(jsonFile, 'r+') as f, open(departureFile, 'r+') as a:
 
         master_struct = json.load(f)
+        dep_input = json.load(a)
 
         master_buffer = master_struct['aircraft']
 
@@ -196,7 +200,7 @@ def addToJSON(icaoList, routeName):
                 seg_meta = seg_data[0]  # Fetch the segment hdr data
                 if str(ic) in icaoList.keys() and str(seg_meta['segment']) in icaoList[str(ic)]:
                     seg_meta['route'] = routeName
-                    seg_meta['origin'] = origin_finder(icaoList)
+                    seg_meta['origin'] = origin_finder(ic,master_struct,dep_input)
                 elif 'route' not in seg_meta.keys():
                     seg_meta['route'] = 'other'
                     seg_meta['origin'] = 'other'

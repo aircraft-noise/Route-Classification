@@ -203,7 +203,7 @@ def addToJSON(icaoList, routeName):
                     seg_meta['origin'] = origin_finder(ic,master_struct,dep_input)
                 elif 'route' not in seg_meta.keys():
                     seg_meta['route'] = 'other'
-                    seg_meta['origin'] = 'other'
+                    seg_meta['origin'] = 'unknown'
 
         f.seek(0)  # should reset file position to the beginning.
         json.dump(master_struct, f)

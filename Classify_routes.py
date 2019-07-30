@@ -1,7 +1,14 @@
+# %% -*- coding: utf-8 -*-
+"""
+Created on Wednesday July, 3 2019
+@authors: Aditeya S and Avi S
+"""
+
 import json
 import csv
 import time
 import DataToKeplerMain as Kepler
+import tcrlib as lib
 
 routes = {}
 ALL_ROUTE_IDS = {}
@@ -53,48 +60,36 @@ def condition_maker():
 # and checks them with the preset conditions listed above. The cond_set parameter is a
 # dictionary (dict) type, and provides maximum and minimum values for the keys: 'track',
 # 'altitude', 'vertical_rate', and 'ground_speed'. The row parameter specifies where to
-# find these values in the input file that is tracked. The function returns the route name
-# if the values match, or 'other' if they do not.
+# find these values in the input file that is tracked. The function returns 'True' if
+# the values match, or 'other' if they do not.
 # ------------------------------------------------------------------------------------
 def apply_route_conditions(cond_set, row):
 
-    track_min = cond_set['track_min']
-    track_max = cond_set['track_max']
-    alt_min = cond_set['alt_min']
-    alt_max = cond_set['alt_max']
-    vrate_min = cond_set['vrate_min']
-    vrate_max = cond_set['vrate_max']
-    ground_speed_min = cond_set['ground_speed_min']
-    ground_speed_max = cond_set['ground_speed_max']
-    ground_distance_min = cond_set['ground_distance_min']
-    ground_distance_max = cond_set['ground_distance_max']
-    ground_distance = row[3]
-    track = row[13]
-    altitude = row[10]
-    vertical_rate = row[12]
-    ground_speed = row[11]
-   # print(track_min, track_max, track)
+        track_min = cond_set['track_min']
+        track_max = cond_set['track_max']
+        alt_min = cond_set['alt_min']
+        alt_max = cond_set['alt_max']
+        vrate_min = cond_set['vrate_min']
+        vrate_max = cond_set['vrate_max']
+        ground_speed_min = cond_set['ground_speed_min']
+        ground_speed_max = cond_set['ground_speed_max']
+        ground_distance_min = cond_set['ground_distance_min']
+        ground_distance_max = cond_set['ground_distance_max']
+        ground_distance = row[3]
+        track = row[13]
+        altitude = row[10]
+        vertical_rate = row[12]
+        ground_speed = row[11]
+        # print(track_min, track_max, track)
 
-    if int(track) in range(int(track_min), int(track_max)+1) \
-            and int(altitude) in range(int(alt_min), int(alt_max)+1) \
-            and int(vertical_rate) in range(int(vrate_min), int(vrate_max)+1) \
-            and int(ground_speed) in range(int(ground_speed_min), int(ground_speed_max)+1)\
-            and float(ground_distance_min) <= float(ground_distance) <= float(ground_distance_max):
-        return cond_set['Route Name']
-    else:
-        return 'other'
-
-
-# ---------------------------------------------------------------------------------------
-# This function calculates the number of flights classified per route and prints them out
-# by one
-# ---------------------------------------------------------------------------------------
-def routecounter(routelist, routename):
-    counter = 0
-    for each in routelist:
-        counter += len(routelist[each])
-    print(routename, ": ",counter)
-
+        if int(track) in range(int(track_min), int(track_max) + 1) \
+                and int(altitude) in range(int(alt_min), int(alt_max) + 1) \
+                and int(vertical_rate) in range(int(vrate_min), int(vrate_max) + 1) \
+                and int(ground_speed) in range(int(ground_speed_min), int(ground_speed_max) + 1) \
+                and float(ground_distance_min) <= float(ground_distance) <= float(ground_distance_max):
+            return cond_set['Route Name']
+        else:
+            return 'other'
 
 # ------------------------------------------------------------------------------------------
 # This function finds the origin of the flights using their ICAO addresses. It opens the
@@ -105,7 +100,7 @@ def routecounter(routelist, routename):
 # code of the origin, and adds it to the JSON feed.
 # ------------------------------------------------------------------------------------------
 
-def origin_finder(icao, master_struct,dep_input):
+def origin_finder(icao, master_struct,dep_input, global_input):
     #print(input['aircraft'][icao])
     flight_id = master_struct['aircraft'][icao][1][0]['flight']
     fa_id = dep_input['KSFO']['arrivals']['flights']
@@ -115,7 +110,11 @@ def origin_finder(icao, master_struct,dep_input):
             #print(origin)
             print('Origin ' + '(ICAO: ' + (icao) + '): ' + fa_id[real_key]['origin']['code'])
             airport_code = fa_id[key]['origin']['code']
+            print(airport_finder(global_input, airport_code))
+            distance_calc(icao, master_struct, airport_code, global_input, dep_input)
             return airport_code
+
+
 
 
 # ---------------------------------------------------------------------------------------
@@ -128,11 +127,13 @@ def addToJSON(icaoList, routeName):
     startTimer = time.time()
     jsonFile = "./Data Sets by Date/" + target_date + "/FA_Sightings." + target_date + ".airport_ids.json.txt"
     departureFile = './Data Sets by Date/' + target_date + '/Airport to-from/fa_airport_arr_dep.' + target_date + '.json'
+    global_database = 'airports.csv'
     print("\nAdding to JSON feed " + "(" + routeName + ")...")
-    with open(jsonFile, 'r+') as f, open(departureFile, 'r+') as a:
+    with open(jsonFile, 'r+') as f, open(departureFile, 'r+') as a, open(global_database, 'r+') as g:
 
         master_struct = json.load(f)
         dep_input = json.load(a)
+        global_input = list(csv.reader(g, delimiter=',', quotechar='"'))
 
         master_buffer = master_struct['aircraft']
 
@@ -145,7 +146,7 @@ def addToJSON(icaoList, routeName):
                 seg_meta = seg_data[0]  # Fetch the segment hdr data
                 if str(ic) in icaoList.keys() and str(seg_meta['segment']) in icaoList[str(ic)]:
                     seg_meta['route'] = routeName
-                    seg_meta['origin'] = origin_finder(ic,master_struct,dep_input)
+                    seg_meta['origin'] = origin_finder(ic,master_struct,dep_input, global_input)
                 elif 'route' not in seg_meta.keys():
                     seg_meta['route'] = 'other'
                     seg_meta['origin'] = 'unknown'
@@ -157,6 +158,21 @@ def addToJSON(icaoList, routeName):
     finalTime = endTimer - startTimer
     print("\nJSON feed update complete in %1.2f seconds" % finalTime)
 
+# ---------------------------------------------------------------------------------------
+# This function finds the latitude and longitude for a given airport code using the global
+# airport database file.
+# ---------------------------------------------------------------------------------------
+def airport_finder(global_input, airport_code):
+    for line in global_input:
+        if line[1] == airport_code:
+            return line[1] + ': ' + line[4] + ', ' + line[5]
+
+def routecounter(routelist, routename):
+    counter = 0
+    for each in routelist:
+        counter += len(routelist[each])
+    print(routename, ": ",counter)
+
 
 # ---------------------------------------------------------------------------------------
 # This function creates a dictionary which prints out the values to be the ICAO addresses
@@ -164,7 +180,6 @@ def addToJSON(icaoList, routeName):
 # number of the flight flying on the route being classified.
 # ---------------------------------------------------------------------------------------
 def listMaker():
-
     for eachRoute in ALL_ROUTE_IDS:
         routeicaos = {}
         for each in ALL_ROUTE_IDS[eachRoute]:
@@ -184,6 +199,38 @@ def listMaker():
         routecounter(routeicaos, str(eachRoute))
         print(routeicaos)
         addToJSON(routeicaos, str(eachRoute))
+
+# ------------------------------------------------------------------------------------------
+# This function reads in the latitude and longitude of the origin and destination airports,
+# and then computes the spherical distance between them using the tcrlib.py file.
+# ------------------------------------------------------------------------------------------
+def distance_calc(icao, master_struct, airport_code, global_input, dep_input):
+    destination_lat_long = 0, 0
+    origin_lat_long = 0, 0
+    org_destination = master_struct['aircraft'][icao][1][0]['destination']
+
+    if org_destination == 'unknown':
+        flight_id = master_struct['aircraft'][icao][1][0]['flight']
+        fa_id = dep_input['KSFO']['arrivals']['flights']
+        for key in fa_id:
+            if str(key).startswith(flight_id):
+                real_key = key
+                airport_key = fa_id[key]['destination']['code']
+                print('Dest: ' + airport_key)
+                org_destination = airport_key
+
+    for line in global_input:
+        if line[1] == org_destination:
+            destination_lat_long = float(line[4]), float(line[5])
+
+    org_origin = airport_code
+    for line in global_input:
+        if line[1] == org_origin:
+            origin_lat_long = float(line[4]), float(line[5])
+
+    #print(origin_lat_long, destination_lat_long)
+    print('Spherical distance between origin (' + org_origin + ') and destination (' + org_destination + '): %1.2f'
+          % lib.sph_distance(origin_lat_long, destination_lat_long) + ' miles')
 
 
 # ----------------------------------------------------------------------------------------

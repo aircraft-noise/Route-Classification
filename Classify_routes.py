@@ -1,123 +1,51 @@
-# %% -*- coding: utf-8 -*-
-"""
-Created on Wednesday July, 3 2019
-@authors: Aditeya S and Avi S
-"""
-
-import csv
 import json
-import os
-import DataToKeplerMain as Kepler
+import csv
 import time
+import DataToKeplerMain as Kepler
+
+routes = {}
+ALL_ROUTE_IDS = {}
 
 
-# SERFR WAYPOINTS:
-
-SIDBY_conds_SERFR = {'track': (300, 335), 'alt': (3000, 6000), 'ground_speed': (200, 275), 'vrate': (-2000, -100),
-                     'ground_distance': (0, 0.125), 'name': 'SERFR'}
-
-EDDY3_conds_SERFR = {'track': (320, 346), 'alt': (4500, 8400), 'ground_speed':(70, 265), 'vrate':(-2176, 594),
-                     'ground_distance': (0, 0.5), 'name': 'SERFR'}
-
-EDDY2_conds_SERFR = {'track': (320, 346), 'alt': (5700, 8401), 'ground_speed': (105, 401), 'vrate': (-2053, -457),
-                     'ground_distance': (0, 0.5), 'name': 'SERFR'}
-
-NARWL_conds_SERFR = {'track':(320, 346), 'alt':(7000, 10001), 'ground_speed':(196, 387),'vrate': (-2112, -181),
-                     'ground_distance': (0, 2), 'name': 'SERFR'}
-
-obs2_conds_SERFR = {'track':(280, 353), 'alt':(8300, 12100), 'ground_speed':(200, 372),'vrate': (-2032, -400),
-                    'ground_distance': (0, 5), 'name': 'SERFR'}
-
-obs1_conds_SERFR = {'track':(338, 351), 'alt':(10000, 15215), 'ground_speed':(324, 390),'vrate': (-2700, 00),
-                    'ground_distance': (0, 5), 'name': 'SERFR'}
-
-# PIRAT2 WAYPOINTS
-
-BRINY_conds_PIRAT2 = {'track':(45, 75), 'alt':(0, 12000), 'ground_speed':(0, 400),'vrate': (-1700, -300),
-                    'ground_distance': (0, 2), 'name': 'PIRAT2'}
-
-ARGGG_conds_PIRAT2 = {'track':(45, 75), 'alt':(5000, 9000), 'ground_speed':(0, 400),'vrate': (-2500, 0),
-                    'ground_distance': (0, 0.3), 'name': 'PIRAT2'}
-
-PIRAT_conds_PIRAT2 = {'track':(45, 75), 'alt':(10000, 13501), 'ground_speed':(0, 400),'vrate': (-1501, 0),
-                    'ground_distance': (0, 1), 'name': 'PIRAT2'}
-
-# DYAMD5 WAYPOINTS
-
-FLOWZ_conds_DYAMD5 = {'track':(244, 262), 'alt': (10001, 15000), 'ground_speed':(0, 400),'vrate': (-2240, -1100),
-                     'ground_distance': (0, 1), 'name': 'DYAMD5'}
-
-CEDES_conds_DYAMD5 = {'track':(240, 262), 'alt': (9000, 12001), 'ground_speed':(0, 400),'vrate': (-3000, -390),
-                     'ground_distance': (0,1), 'name': 'DYAMD5'}
-
-FRELY_conds_DYAMD5 = {'track':(235, 252), 'alt': (7000, 15000), 'ground_speed':(0, 270),'vrate': (-2240, 0),
-                     'ground_distance': (0, 0.4), 'name': 'DYAMD5'}
-
-ARCHI_conds_DYAMD5 = {'track':(235, 269), 'alt': (0, 7800), 'ground_speed':(0, 400),'vrate': (-2600, 0),
-                     'ground_distance': (0, 0.15), 'name': 'DYAMD5'}
-
-#BDEGA3 WAYPOINTS
-
-LOZIT_conds_BDEGA3 = {'track':(120, 170), 'alt': (4300, 16000), 'ground_speed':(250, 400),'vrate': (-2900, 0),
-                    'ground_distance': (0, 1), 'name': 'BDEGA3'}
-
-BDEGA_conds_BDEGA3 = {'track':(130, 170), 'alt': (6100, 14000), 'ground_speed':(0, 400),'vrate': (-2900, -1000),
-                    'ground_distance': (0, 1), 'name': 'BDEGA3'}
-
-CORKK_conds_BDEGA3 = {'track':(120, 170), 'alt': (3600, 11000), 'ground_speed':(0, 400),'vrate': (-3000, 0),
-                    'ground_distance': (0, 0.35), 'name': 'BDEGA3'}
-
-BRIXX_conds_BDEGA3 = {'track':(120, 160), 'alt': (0, 11000), 'ground_speed':(0, 400),'vrate': (-4000, -100),
-                    'ground_distance': (0, 0.15), 'name': 'BDEGA3'}
+# ------------------------------------------------------------------------------------
+# This helper function groups the routes by their route names
+# ------------------------------------------------------------------------------------
+def group_by(select_key, list_of_dicts):
+    result_dict = {}
+    if callable(select_key):
+        key_fn = select_key
+    else:
+        key_fn = lambda d: d.get(select_key)
+    for this_dict in list_of_dicts:
+        this_key = key_fn( this_dict )
+        value_this_key = result_dict.get(this_key, list())
+        value_this_key.append(this_dict)
+        result_dict[this_key] = value_this_key
+    return result_dict
 
 
-SERFR = {
-    "SIDBY_SFO_Approach_SE": SIDBY_conds_SERFR,
-    "EDDYY(3)": EDDY3_conds_SERFR,
-    "EDDYY(2)": EDDY2_conds_SERFR,
-    "NARWL": NARWL_conds_SERFR,
-    "OBS_2": obs2_conds_SERFR,
-    "OBS_1": obs1_conds_SERFR
-
-
-}
-
-PIRAT2 = {
-    "ARGGG": ARGGG_conds_PIRAT2,
-    "BRINY": BRINY_conds_PIRAT2,
-    "PIRAT": PIRAT_conds_PIRAT2
-}
-
-DYAMD5 = {
-    "FLOWZ": FLOWZ_conds_DYAMD5, #26
-    "CEDES": CEDES_conds_DYAMD5, #0
-    "FRELY": FRELY_conds_DYAMD5, #7
-    "ARCHI": ARCHI_conds_DYAMD5 #0
-}
-
-BDEGA3 = {
-    "LOZIT": LOZIT_conds_BDEGA3,
-    "BDEGA": BDEGA_conds_BDEGA3,
-    "CORKK": CORKK_conds_BDEGA3,
-    "BRIXX": BRIXX_conds_BDEGA3
-}
-
-routes = [
-    PIRAT2,
-    SERFR,
-    DYAMD5,
-    BDEGA3
-]
-
-ALL_ROUTE_IDS = {
-    "PIRAT2": [],
-    "SERFR": [],
-    "DYAMD5": [],
-    "BDEGA3": []
-
-}
-
-target_date = ''
+# ------------------------------------------------------------------------------------
+# This function initialises the csv file of the waypoint condition sets and makes
+# data structures of the routes and their waypoints
+# ------------------------------------------------------------------------------------
+def condition_maker():
+    global routes
+    global ALL_ROUTE_IDS
+    routelist = []
+    with open("waypoint_data.csv", encoding='utf-8-sig') as f_in:
+        reader = csv.reader(f_in, delimiter=',', quotechar='"')
+        data_list = list(reader)
+        for line in range(1, len(data_list)):
+            dict = {}
+            count = 0
+            for each in data_list[line]:
+                dict[data_list[0][count]] = each
+                count += 1
+            routelist.append(dict)
+            ALL_ROUTE_IDS[str(data_list[line][0])] = []
+        routes = group_by('Route Name', routelist)
+        print(routes)
+        print(ALL_ROUTE_IDS)
 
 
 # ------------------------------------------------------------------------------------
@@ -125,29 +53,48 @@ target_date = ''
 # and checks them with the preset conditions listed above. The cond_set parameter is a
 # dictionary (dict) type, and provides maximum and minimum values for the keys: 'track',
 # 'altitude', 'vertical_rate', and 'ground_speed'. The row parameter specifies where to
-# find these values in the input file that is tracked. The function returns 'True' if
-# the values match, or 'other' if they do not.
+# find these values in the input file that is tracked. The function returns the route name
+# if the values match, or 'other' if they do not.
 # ------------------------------------------------------------------------------------
 def apply_route_conditions(cond_set, row):
-    track_min, track_max = cond_set['track']
-    alt_min, alt_max = cond_set['alt']
-    vrate_min, vrate_max = cond_set['vrate']
-    ground_speed_min, ground_speed_max = cond_set['ground_speed']
-    ground_distance_min, ground_distance_max = cond_set['ground_distance']
+
+    track_min = cond_set['track_min']
+    track_max = cond_set['track_max']
+    alt_min = cond_set['alt_min']
+    alt_max = cond_set['alt_max']
+    vrate_min = cond_set['vrate_min']
+    vrate_max = cond_set['vrate_max']
+    ground_speed_min = cond_set['ground_speed_min']
+    ground_speed_max = cond_set['ground_speed_max']
+    ground_distance_min = cond_set['ground_distance_min']
+    ground_distance_max = cond_set['ground_distance_max']
     ground_distance = row[3]
     track = row[13]
     altitude = row[10]
     vertical_rate = row[12]
     ground_speed = row[11]
+   # print(track_min, track_max, track)
 
-    if float(int(track)) in range(track_min, track_max+1) \
-            and int(altitude) in range(alt_min, alt_max+1) \
-            and int(vertical_rate) in range(vrate_min, vrate_max+1) \
-            and int(ground_speed) in range(ground_speed_min, ground_speed_max+1)\
-            and ground_distance_min <= float(ground_distance) <= ground_distance_max:
-        return cond_set['name']
+    if int(track) in range(int(track_min), int(track_max)+1) \
+            and int(altitude) in range(int(alt_min), int(alt_max)+1) \
+            and int(vertical_rate) in range(int(vrate_min), int(vrate_max)+1) \
+            and int(ground_speed) in range(int(ground_speed_min), int(ground_speed_max)+1)\
+            and float(ground_distance_min) <= float(ground_distance) <= float(ground_distance_max):
+        return cond_set['Route Name']
     else:
         return 'other'
+
+
+# ---------------------------------------------------------------------------------------
+# This function calculates the number of flights classified per route and prints them out
+# by one
+# ---------------------------------------------------------------------------------------
+def routecounter(routelist, routename):
+    counter = 0
+    for each in routelist:
+        counter += len(routelist[each])
+    print(routename, ": ",counter)
+
 
 # ------------------------------------------------------------------------------------------
 # This function finds the origin of the flights using their ICAO addresses. It opens the
@@ -169,8 +116,6 @@ def origin_finder(icao, master_struct,dep_input):
             print('Origin ' + '(ICAO: ' + (icao) + '): ' + fa_id[real_key]['origin']['code'])
             airport_code = fa_id[key]['origin']['code']
             return airport_code
-
-
 
 
 # ---------------------------------------------------------------------------------------
@@ -211,13 +156,6 @@ def addToJSON(icaoList, routeName):
     endTimer = time.time()
     finalTime = endTimer - startTimer
     print("\nJSON feed update complete in %1.2f seconds" % finalTime)
-
-
-def routecounter(routelist, routename):
-    counter = 0
-    for each in routelist:
-        counter += len(routelist[each])
-    print(routename, ": ",counter)
 
 
 # ---------------------------------------------------------------------------------------
@@ -261,11 +199,10 @@ def sightingReader(date):
         flight_ids = []
         routeName = ' '
         count = 0
-        for waypoint in eachRoute:
+        for cond_set in routes[eachRoute]:
 
-            cond_set = eachRoute[waypoint]
 
-            file = "./Data Sets by Date/" + target_date + "/FA_rcas/FA_rcas." + target_date + "." + waypoint + ".rca.txt"
+            file = "./Data Sets by Date/" + target_date + "/FA_rcas/FA_rcas." + target_date + "." + cond_set['Waypoint'] + ".rca.txt"
 
             with open(file) as f_in:
                 reader = csv.reader(f_in, delimiter='\t', quotechar='"')
@@ -276,7 +213,7 @@ def sightingReader(date):
                     if linecount == 3:
                         line += {"Route"}
                     if linecount > 3:
-                        routeName = cond_set['name']
+                        routeName = cond_set['Route Name']
                         route = apply_route_conditions(cond_set, line)
                         line += {route}
                         if route != 'other':
@@ -294,5 +231,6 @@ def sightingReader(date):
 
 
 if __name__ == "__main__":
+    condition_maker()
     target_date_input = input('Enter the target date (yymmdd): ')
     sightingReader(target_date_input)

@@ -9,7 +9,8 @@ import csv
 import time
 import DataToKeplerMain as Kepler
 import tcrlib as lib
-
+import os
+os.chdir('/Users/aditeyashukla/Documents/MONA/Route-Classification/')  # Get to proper starting dir
 routes = {}
 ALL_ROUTE_IDS = {}
 
@@ -91,6 +92,46 @@ def apply_route_conditions(cond_set, row):
         else:
             return 'other'
 
+
+# ------------------------------------------------------------------------------------------
+# This function reads in the latitude and longitude of the origin and destination airports,
+# and then computes the spherical distance between them using the tcrlib.py file.
+# ------------------------------------------------------------------------------------------
+def distance_calc(seg_data, org_origin, global_input, dep_input):
+    destination_lat_long = 0, 0
+    origin_lat_long = 0, 0
+    org_destination = seg_data['destination']
+
+    if org_destination == 'unknown':
+        flight_id = seg_data['flight']
+        fa_id = dep_input['KSFO']['arrivals']['flights']
+        for key in fa_id:
+            if str(key).startswith(flight_id):
+                airport_key = fa_id[key]['destination']['code']
+                print('Dest: ' + airport_key)
+                org_destination = airport_key
+    print('Dest: ' + org_destination)
+
+    for line in global_input:
+        if line[1] == org_destination:
+            destination_lat_long = float(line[4]), float(line[5])
+        if line[1] == org_origin:
+            origin_lat_long = float(line[4]), float(line[5])
+
+    print('Spherical distance between origin (' + org_origin + ') and destination (' + org_destination + '): %1.2f'
+          % lib.sph_distance(origin_lat_long, destination_lat_long) + ' miles')
+
+
+def aircraft_type(seg_data, dep_input):
+    flight_id = seg_data['flight']
+    fa_id = dep_input['KSFO']['arrivals']['flights']
+    for key in fa_id:
+        if str(key).startswith(flight_id):
+            aircraft_type = fa_id[key]['full_aircrafttype']
+            print('Aircraft type: ' + aircraft_type)
+            return aircraft_type
+
+
 # ------------------------------------------------------------------------------------------
 # This function finds the origin of the flights using their ICAO addresses. It opens the
 # the sightings file, and then finds the flight number using the ICAO address. The arrivals
@@ -99,24 +140,26 @@ def apply_route_conditions(cond_set, row):
 # holds the value for the origin airport of a flight. The function then returns the airport
 # code of the origin, and adds it to the JSON feed.
 # ------------------------------------------------------------------------------------------
-
-def origin_finder(icao, master_struct,dep_input, global_input):
-    #print(input['aircraft'][icao])
-    flight_id = master_struct['aircraft'][icao][1][0]['flight']
+def origin_finder(icao,seg_meta,dep_input, global_input):
+    flight_id = seg_meta['flight']
     fa_id = dep_input['KSFO']['arrivals']['flights']
     for key in fa_id:
         if str(key).startswith(flight_id):
-            real_key = key
-            #print(origin)
-            print('\nOrigin ' + '(ICAO: ' + (icao) + '): ' + fa_id[real_key]['origin']['code'] + ' (' + str(find_segment_num(icao, master_struct)) + ')')
+            print('\nOrigin ' + '(ICAO: ' + (icao) + '): ' + fa_id[key]['origin']['code'] + ' (' + str(seg_meta['segment']) + ')')
             airport_code = fa_id[key]['origin']['code']
             print(airport_finder(global_input, airport_code))
-            distance_calc(icao, master_struct, airport_code, global_input, dep_input)
+            distance_calc(seg_meta, airport_code, global_input, dep_input)
             return airport_code
 
-def find_segment_num(icao, master_struct):
-    segment_num = master_struct['aircraft'][icao][1][0]['segment']
-    return segment_num
+
+# ---------------------------------------------------------------------------------------
+# This function finds the latitude and longitude for a given airport code using the global
+# airport database file.
+# ---------------------------------------------------------------------------------------
+def airport_finder(global_input, airport_code):
+    for line in global_input:
+        if line[1] == airport_code:
+            return line[1] + ': ' + line[4] + ', ' + line[5]
 
 
 # ---------------------------------------------------------------------------------------
@@ -148,14 +191,8 @@ def addToJSON(icaoList, routeName):
                 seg_meta = seg_data[0]  # Fetch the segment hdr data
                 if str(ic) in icaoList.keys() and str(seg_meta['segment']) in icaoList[str(ic)]:
                     seg_meta['route'] = routeName
-                    seg_meta['origin'] = origin_finder(ic,master_struct,dep_input, global_input)
-                    seg_meta['ac_type'] = aircraft_type(ic, master_struct, dep_input)
-                    seg_meta['segment'] = find_segment_num(ic, master_struct)
-                elif 'route' not in seg_meta.keys():
-                    seg_meta['route'] = 'other'
-                    seg_meta['origin'] = 'unknown'
-                    seg_meta['ac_type'] = 'unknown'
-                    #seg_meta['segment'] = 'unknown'
+                    seg_meta['origin'] = origin_finder(ic, seg_meta,dep_input, global_input)
+                    seg_meta['ac_type'] = aircraft_type(seg_meta, dep_input)
         f.seek(0)  # should reset file position to the beginning.
         json.dump(master_struct, f)
         f.truncate()
@@ -163,14 +200,6 @@ def addToJSON(icaoList, routeName):
     finalTime = endTimer - startTimer
     print("\nJSON feed update complete in %1.2f seconds" % finalTime)
 
-# ---------------------------------------------------------------------------------------
-# This function finds the latitude and longitude for a given airport code using the global
-# airport database file.
-# ---------------------------------------------------------------------------------------
-def airport_finder(global_input, airport_code):
-    for line in global_input:
-        if line[1] == airport_code:
-            return line[1] + ': ' + line[4] + ', ' + line[5]
 
 def routecounter(routelist, routename):
     counter = 0
@@ -205,50 +234,8 @@ def listMaker():
         print(routeicaos)
         addToJSON(routeicaos, str(eachRoute))
 
-# ------------------------------------------------------------------------------------------
-# This function reads in the latitude and longitude of the origin and destination airports,
-# and then computes the spherical distance between them using the tcrlib.py file.
-# ------------------------------------------------------------------------------------------
-def distance_calc(icao, master_struct, airport_code, global_input, dep_input):
-    destination_lat_long = 0, 0
-    origin_lat_long = 0, 0
-    org_destination = master_struct['aircraft'][icao][1][0]['destination']
-    print('Dest: ' + org_destination)
-
-    if org_destination == 'unknown':
-        flight_id = master_struct['aircraft'][icao][1][0]['flight']
-        fa_id = dep_input['KSFO']['arrivals']['flights']
-        for key in fa_id:
-            if str(key).startswith(flight_id):
-                real_key = key
-                airport_key = fa_id[key]['destination']['code']
-                print('Dest: ' + airport_key)
-                org_destination = airport_key
-
-    for line in global_input:
-        if line[1] == org_destination:
-            destination_lat_long = float(line[4]), float(line[5])
-
-    org_origin = airport_code
-    for line in global_input:
-        if line[1] == org_origin:
-            origin_lat_long = float(line[4]), float(line[5])
-
-    #print(origin_lat_long, destination_lat_long)
-    print('Spherical distance between origin (' + org_origin + ') and destination (' + org_destination + '): %1.2f'
-          % lib.sph_distance(origin_lat_long, destination_lat_long) + ' miles')
-    aircraft_type(icao, master_struct, dep_input)
 
 
-def aircraft_type(icao, master_struct, dep_input):
-    flight_id = master_struct['aircraft'][icao][1][0]['flight']
-    fa_id = dep_input['KSFO']['arrivals']['flights']
-    for key in fa_id:
-        if str(key).startswith(flight_id):
-            real_key = key
-            aircraft_type = fa_id[key]['full_aircrafttype']
-            return aircraft_type
-            #print('Aircraft type: ' + aircraft_type)
 
 # ----------------------------------------------------------------------------------------
 # This function opens the input file that is specified for each waypoint and target date.
@@ -264,7 +251,6 @@ def sightingReader(date):
         routeName = ' '
         count = 0
         for cond_set in routes[eachRoute]:
-
 
             file = "./Data Sets by Date/" + target_date + "/FA_rcas/FA_rcas." + target_date + "." + cond_set['Waypoint'] + ".rca.txt"
 

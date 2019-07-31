@@ -108,13 +108,15 @@ def origin_finder(icao, master_struct,dep_input, global_input):
         if str(key).startswith(flight_id):
             real_key = key
             #print(origin)
-            print('\nOrigin ' + '(ICAO: ' + (icao) + '): ' + fa_id[real_key]['origin']['code'])
+            print('\nOrigin ' + '(ICAO: ' + (icao) + '): ' + fa_id[real_key]['origin']['code'] + ' (' + str(find_segment_num(icao, master_struct)) + ')')
             airport_code = fa_id[key]['origin']['code']
             print(airport_finder(global_input, airport_code))
             distance_calc(icao, master_struct, airport_code, global_input, dep_input)
             return airport_code
 
-
+def find_segment_num(icao, master_struct):
+    segment_num = master_struct['aircraft'][icao][1][0]['segment']
+    return segment_num
 
 
 # ---------------------------------------------------------------------------------------
@@ -147,10 +149,13 @@ def addToJSON(icaoList, routeName):
                 if str(ic) in icaoList.keys() and str(seg_meta['segment']) in icaoList[str(ic)]:
                     seg_meta['route'] = routeName
                     seg_meta['origin'] = origin_finder(ic,master_struct,dep_input, global_input)
+                    seg_meta['ac_type'] = aircraft_type(ic, master_struct, dep_input)
+                    seg_meta['segment'] = find_segment_num(ic, master_struct)
                 elif 'route' not in seg_meta.keys():
                     seg_meta['route'] = 'other'
                     seg_meta['origin'] = 'unknown'
-
+                    seg_meta['ac_type'] = 'unknown'
+                    #seg_meta['segment'] = 'unknown'
         f.seek(0)  # should reset file position to the beginning.
         json.dump(master_struct, f)
         f.truncate()
@@ -208,6 +213,7 @@ def distance_calc(icao, master_struct, airport_code, global_input, dep_input):
     destination_lat_long = 0, 0
     origin_lat_long = 0, 0
     org_destination = master_struct['aircraft'][icao][1][0]['destination']
+    print('Dest: ' + org_destination)
 
     if org_destination == 'unknown':
         flight_id = master_struct['aircraft'][icao][1][0]['flight']
@@ -231,7 +237,18 @@ def distance_calc(icao, master_struct, airport_code, global_input, dep_input):
     #print(origin_lat_long, destination_lat_long)
     print('Spherical distance between origin (' + org_origin + ') and destination (' + org_destination + '): %1.2f'
           % lib.sph_distance(origin_lat_long, destination_lat_long) + ' miles')
+    aircraft_type(icao, master_struct, dep_input)
 
+
+def aircraft_type(icao, master_struct, dep_input):
+    flight_id = master_struct['aircraft'][icao][1][0]['flight']
+    fa_id = dep_input['KSFO']['arrivals']['flights']
+    for key in fa_id:
+        if str(key).startswith(flight_id):
+            real_key = key
+            aircraft_type = fa_id[key]['full_aircrafttype']
+            return aircraft_type
+            #print('Aircraft type: ' + aircraft_type)
 
 # ----------------------------------------------------------------------------------------
 # This function opens the input file that is specified for each waypoint and target date.

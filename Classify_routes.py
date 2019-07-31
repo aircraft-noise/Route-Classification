@@ -108,7 +108,7 @@ def origin_finder(icao, master_struct,dep_input, global_input):
         if str(key).startswith(flight_id):
             real_key = key
             #print(origin)
-            print('Origin ' + '(ICAO: ' + (icao) + '): ' + fa_id[real_key]['origin']['code'])
+            print('\nOrigin ' + '(ICAO: ' + (icao) + '): ' + fa_id[real_key]['origin']['code'])
             airport_code = fa_id[key]['origin']['code']
             print(airport_finder(global_input, airport_code))
             distance_calc(icao, master_struct, airport_code, global_input, dep_input)

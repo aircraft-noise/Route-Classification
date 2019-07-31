@@ -145,7 +145,7 @@ def origin_finder(icao,seg_meta,dep_input, global_input):
     fa_id = dep_input['KSFO']['arrivals']['flights']
     for key in fa_id:
         if str(key).startswith(flight_id):
-            print('\nOrigin ' + '(ICAO: ' + (icao) + '): ' + fa_id[key]['origin']['code'] + ' (' + str(seg_meta['segment']) + ')')
+            print('\nOrigin ' + '(Flight: '+ flight_id + ', ICAO: ' + (icao) + '): ' + fa_id[key]['origin']['code'] + ' (' + str(seg_meta['segment']) + ')')
             airport_code = fa_id[key]['origin']['code']
             print(airport_finder(global_input, airport_code))
             distance_calc(seg_meta, airport_code, global_input, dep_input)

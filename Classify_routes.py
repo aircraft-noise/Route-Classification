@@ -3,14 +3,23 @@
 Created on Wednesday July, 3 2019
 @authors: Aditeya S and Avi S
 """
-
 import json
 import csv
 import time
 import DataToKeplerMain as Kepler
 import tcrlib as lib
 import os
-os.chdir('/Users/aditeyashukla/Documents/MONA/Route-Classification/')  # Get to proper starting dir
+import yaml
+
+def read_config(cfg_env_var = 'MONA_CFG'):
+    with open(os.getenv(cfg_env_var), 'r') as cfg_file_fd:
+        return yaml.safe_load(cfg_file_fd)
+
+configuration = read_config()
+
+
+
+read_config()
 routes = {}
 ALL_ROUTE_IDS = {}
 
@@ -235,8 +244,6 @@ def listMaker():
         addToJSON(routeicaos, str(eachRoute))
 
 
-
-
 # ----------------------------------------------------------------------------------------
 # This function opens the input file that is specified for each waypoint and target date.
 # It is the main function for the classification of routes. It calls the other functions
@@ -279,6 +286,13 @@ def sightingReader(date):
     print("\nMaking Kepler file")
     Kepler.runkepler()
 
+def read_config(cfg_env_var = 'MONA_CFG'):
+    with open(os.getenv(cfg_env_var), 'r') as cfg_file_fd:
+        return yaml.safe_load(cfg_file_fd)
+
+configuration = read_config()
+
+print('datafile_basedir: {}'.format(configuration['classify']['datafile_basedir']))
 
 if __name__ == "__main__":
     condition_maker()

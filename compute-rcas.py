@@ -15,7 +15,6 @@ import tcrlib as tcr
 import time as tt
 import datetime as ut
 import Classify_routes as classify
-import csv
 #from copy import deepcopy
 
 # =============================================================================
@@ -79,29 +78,26 @@ airport_list = []
 #obs_list = [('Sta Margarita & Gilbert; MP', 37.4602603, -122.1629987, 46),
 #            ('Tevis Pl; PA', 37.450204, -122.143786, 26)]
 
-
-def obslistmaker():
-    obslist = []
-    with open('virtual_observers.csv', 'r') as csvfile:
-        reader = csv.reader(csvfile, delimiter=',', quotechar='|')
-        counter = 0
-
-        for row in reader:
-            obs_line = ()
-            if counter != 0:
-                print(row)
-                name = str(row[0])
-                latitude = float(row[1])
-                longitude = float(row[2])
-                elevation = float(row[3])
-                obs_line = (name, latitude, longitude, elevation)
-                obs_list.append(obs_line)
-            counter += 1
-    return obslist
-
-
 # TCR Tevis home
-obs_list = obslistmaker()
+obs_list = [('Tevis Pl; PA', 37.450204, -122.143786, 26),
+            ('SIDBY', 37.450711, -122.144722, 25),
+            ('EDDYY(2)', 37.326444,   -122.099722, 958.8),
+            ('EDDYY(3)', 37.374903,   -122.119028, 206.5),
+            ('NARWL', 37.274781,   -122.079306, 778.0),
+            ('OBS_1', 36.967737, -121.959109, 49.2),
+            ('OBS_2', 37.115215, -122.016728, 738.2),
+            ('BRINY',   37.304761, - 122.661656, 0.0),
+            ('ARGGG',   37.392422, - 122.281631, 2183.3),
+            ('PIRAT',  37.257650,   -122.863353, 0.0),
+            ('FRELY', 37.510053, -121.795325, 1339),
+            ('CEDES', 37.55082, -121.6246, 3110.2),
+            ('FLOWZ', 37.592519, -121.264750, 95),
+            ('ARCHI', 37.490806, -121.875556, 2146.5),
+            ('LOZIT', 37.899325, -122.673194, 0),
+            ('BDEGA', 37.823025, -122.5922, 0),
+            ('CORKK', 37.733589, -122.49755, 52.5),
+            ('BRIXX', 37.617844, -122.374528, 6.6)
+            ]
 
 # Don Jackson & TCR home
 #obs_list = [('Tevis Pl; PA', 37.450204, -122.143786, 26),
@@ -177,25 +173,6 @@ obs_list = obslistmaker()
 #obs_list = [('SU Emergency Dept', 37.433875, -122.174511, 95),
 #            ('VMC Emergency Dept', 37.313718, -121.934491, 150.0),
 #            ('San Francisco Intl', 37.6188056, -122.3754167, 13.1)]
-
-def obslistmaker():
-    obs_list = []
-    with open('virtual_observers.csv', 'r') as csvfile:
-        reader = csv.reader(csvfile, delimiter=',', quotechar='|')
-        counter = 0
-
-        for row in reader:
-            obs_line = ()
-            if counter != 0:
-                print(row)
-                name = str(row[0])
-                latitude = float(row[1])
-                longitude = float(row[2])
-                elevation = float(row[3])
-                obs_line = (name, latitude, longitude, elevation)
-                obs_list.append(obs_line)
-            counter += 1
-    return obs_list
 
 # Set mode switch to accommodate unique handling of computing rcas
 mode_sw = 'rcas'

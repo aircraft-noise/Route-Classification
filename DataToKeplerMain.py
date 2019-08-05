@@ -10,7 +10,7 @@ import datetime as dt  # datetime
 import calendar as cal
 import os
 
-os.chdir('/Users/aditeyashukla/Documents/MONA/Route-Classification/')  # Get to proper starting dir
+os.chdir('/Users/avisingh/Desktop/MONA/Classification/')  # Get to proper starting dir
 import sys
 import glob as ll
 import tcrlib as tcr
@@ -71,9 +71,9 @@ def get_file_list(path_sight_str, path_track_str, target_date):
 ##############################
 
 # %% Define paths and file name parts, first for the sighting file
-pathIn = '/Users/aditeyashukla/Documents/MONA/Route-Classification/Data Sets by Date'
-path_trk = '/Users/aditeyashukla/Documents/MONA/Route-Classification/Mapping jsons'
-pathOut = '/Users/aditeyashukla/Documents/MONA/Route-Classification/Data Sets by Date'
+pathIn = '/Users/avisingh/Desktop/MONA/Classification/Data Sets by Date'
+path_trk = '/Users/avisingh/Desktop/MONA/Classification/Mapping jsons'
+pathOut = '/Users/avisingh/Desktop/MONA/Classification/Data Sets by Date'
 in_file_name_stem = 'FAA_FOIA_Sightings.'
 # FA_Sightings.180430.airport_ids.json.txt
 in_file_name_post = '.airport_ids.json.txt'

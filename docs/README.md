@@ -38,7 +38,7 @@ The purpose of Route Classification is to refine flight paths based on the route
 
 *   <span style="text-decoration:underline;">Configuration File:</span>
     *   A configuration file is necessary for the classify_routes script. For creation of this file, open a text editor. The default text editor for Mac users is TextEdit, and the default for Windows users is Notepad. Once a new file has been created, type ‘classify:’ on the first line. On the second line, click tab, and type ‘datafile_basedir:’. In front of this colon, write out the full path of the Data Sets by Date folder (containing the Sightings file and the FA_rcas files created by the compute-rcas script) on your machine. Then, save the file as a .yml. An example configuration file is shown:
-    ![](docs/images/Config-File1.png)
+    ![](https://github.com/aircraft-noise/Route-Classification/blob/master/docs/images/Config-File1.png)
 *   <span style="text-decoration:underline;">Environment Variable:</span>
     *   The environment variable that is used in the classify_routes.py script can be created in at least two of the following ways. If PyCharm is being used for this process, reference the PyCharm section below.
     *   In the shell (Terminal/PowerShell), enter the same directory as the file with the classify_routes code. 
@@ -49,22 +49,22 @@ The purpose of Route Classification is to refine flight paths based on the route
 
 
 
-![](docs/images/Route-Classification0.png)
+![](https://github.com/aircraft-noise/Route-Classification/blob/master/docs/images/Route-Classification0.png)
 
 
 
 
-![](docs/images/Route-Classification1.png)
+![](https://github.com/aircraft-noise/Route-Classification/blob/master/docs/images/Route-Classification1.png)
 
 
 
 
-![](docs/images/Route-Classification2.png)
+![](https://github.com/aircraft-noise/Route-Classification/blob/master/docs/images/Route-Classification2.png)
 
 
 
 
-![](docs/images/Route-Classification3.png)
+![](https://github.com/aircraft-noise/Route-Classification/blob/master/docs/images/Route-Classification3.png)
 
 
 

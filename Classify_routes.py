@@ -11,14 +11,13 @@ import tcrlib as lib
 import os
 import yaml
 
+
 def read_config(cfg_env_var = 'MONA_CFG'):
-    with open(os.getenv(cfg_env_var), 'r') as cfg_file_fd:
+    with open(os.getenv(cfg_env_var), 'r+') as cfg_file_fd:
         return yaml.safe_load(cfg_file_fd)
 
+
 configuration = read_config()
-
-
-
 read_config()
 routes = {}
 ALL_ROUTE_IDS = {}
@@ -179,8 +178,8 @@ def airport_finder(global_input, airport_code):
 # ---------------------------------------------------------------------------------------
 def addToJSON(icaoList, routeName):
     startTimer = time.time()
-    jsonFile = "./Data Sets by Date/" + target_date + "/FA_Sightings." + target_date + ".airport_ids.json.txt"
-    departureFile = './Data Sets by Date/' + target_date + '/Airport to-from/fa_airport_arr_dep.' + target_date + '.json'
+    jsonFile = configuration['classify']['datafile_basedir'] + "/" + target_date + "/FA_Sightings." + target_date + ".airport_ids.json.txt"
+    departureFile = configuration['classify']['datafile_basedir'] + "/" + target_date + '/Airport to-from/fa_airport_arr_dep.' + target_date + '.json'
     global_database = 'airports.csv'
     print("\nAdding to JSON feed " + "(" + routeName + ")...")
     with open(jsonFile, 'r+') as f, open(departureFile, 'r+') as a, open(global_database, 'r+') as g:
@@ -259,7 +258,7 @@ def sightingReader(date):
         count = 0
         for cond_set in routes[eachRoute]:
 
-            file = "./Data Sets by Date/" + target_date + "/FA_rcas/FA_rcas." + target_date + "." + cond_set['Waypoint'] + ".rca.txt"
+            file = configuration['classify']['datafile_basedir'] + "/" + target_date + "/FA_rcas/FA_rcas." + target_date + "." + cond_set['Waypoint'] + ".rca.txt"
 
             with open(file) as f_in:
                 reader = csv.reader(f_in, delimiter='\t', quotechar='"')
@@ -286,15 +285,9 @@ def sightingReader(date):
     print("\nMaking Kepler file")
     Kepler.runkepler()
 
-def read_config(cfg_env_var = 'MONA_CFG'):
-    with open(os.getenv(cfg_env_var), 'r') as cfg_file_fd:
-        return yaml.safe_load(cfg_file_fd)
-
-configuration = read_config()
-
-print('datafile_basedir: {}'.format(configuration['classify']['datafile_basedir']))
 
 if __name__ == "__main__":
+    print(configuration['classify']['datafile_basedir'])
     condition_maker()
     target_date_input = input('Enter the target date (yymmdd): ')
     sightingReader(target_date_input)

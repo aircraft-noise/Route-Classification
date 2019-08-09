@@ -5,8 +5,7 @@ Created on Tue Sep  5 15:06:34 2017
 @author: TCR
 """
 import sys
-import os
-os.chdir('/Users/avisingh/Desktop/MONA/Classification/') # Get to proper starting dir
+
 import tkinter as tk
 from tkinter import filedialog
 import json
